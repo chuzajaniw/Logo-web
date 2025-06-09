@@ -6,7 +6,7 @@
   <title>Logo Generator</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: sans-serif;
       background: #111;
       color: #fff;
       display: flex;
@@ -18,20 +18,19 @@
     h1 {
       color: #00f7ff;
       text-align: center;
-      margin-bottom: 30px;
     }
-    .container {
+    .input-group {
+      display: flex;
+      flex-direction: column;
       width: 100%;
-      max-width: 500px;
+      max-width: 400px;
     }
     input, button {
       padding: 12px;
-      margin: 10px 0;
+      margin: 8px 0;
       font-size: 16px;
       border-radius: 5px;
       border: none;
-      width: 100%;
-      box-sizing: border-box;
     }
     input {
       background: #222;
@@ -43,16 +42,14 @@
       color: #111;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: 0.3s;
     }
     button:hover {
       background: #00d0d9;
-      transform: translateY(-2px);
     }
     button:disabled {
       background: #555;
       cursor: not-allowed;
-      transform: none;
     }
     #preview {
       margin-top: 30px;
@@ -63,25 +60,29 @@
       align-items: center;
       justify-content: center;
     }
-    img {
-      max-width: 100%;
-      max-height: 300px;
+    .logo-container {
       border: 2px solid #00f7ff;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+      padding: 10px;
+      background: rgba(0, 247, 255, 0.1);
       margin-bottom: 15px;
+    }
+    .logo-container img {
+      max-width: 100%;
+      max-height: 300px;
+      display: block;
     }
     .download-btn {
       background: #4CAF50;
-      width: auto;
       padding: 10px 20px;
+      text-decoration: none;
+      color: white;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: 0.3s;
     }
     .download-btn:hover {
       background: #3e8e41;
-    }
-    .error {
-      color: #ff5555;
-      margin-top: 10px;
     }
     .loading {
       border: 4px solid rgba(0, 247, 255, 0.3);
@@ -90,90 +91,92 @@
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
+      margin: 20px auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .error {
+      color: #ff5555;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔥 Logo Generator 🔥</h1>
+  <h1>🔥 Logo Generator 🔥</h1>
+  
+  <div class="input-group">
     <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
     <input type="text" id="logoText" placeholder="Enter Your Text" maxlength="20" />
     <button id="generateBtn" onclick="generateLogo()">Generate Logo</button>
     <div id="error" class="error"></div>
-    
-    <div id="preview">
-      <p>Your generated logo will appear here</p>
-    </div>
+  </div>
+
+  <div id="preview">
+    <p>Your logo will appear here after generation</p>
   </div>
 
   <script>
     const generateBtn = document.getElementById("generateBtn");
     const preview = document.getElementById("preview");
     const errorEl = document.getElementById("error");
-    
+
     async function generateLogo() {
       const number = document.getElementById("logoNumber").value;
       const text = document.getElementById("logoText").value.trim();
-      
-      // Clear previous errors and results
+
+      // Clear previous results and errors
       errorEl.textContent = "";
       preview.innerHTML = '<div class="loading"></div>';
       generateBtn.disabled = true;
-      
+
       // Validate inputs
       if (!number || number < 1 || number > 35) {
         showError("Please enter a valid logo number between 1-35");
         return;
       }
-      
+
       if (!text) {
         showError("Please enter some text for your logo");
         return;
       }
-      
-      if (text.length > 20) {
-        showError("Text must be 20 characters or less");
-        return;
-      }
-      
+
       try {
         const apiUrl = `https://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
         
-        // Test if the image loads successfully
-        await testImage(apiUrl);
+        // First verify the image loads
+        const img = new Image();
+        img.src = apiUrl;
         
-        // Display the image
-        preview.innerHTML = `
-          <img src="${apiUrl}" alt="Generated Logo" />
-          <a href="${apiUrl}" download="logo_${number}_${text.replace(/\s+/g, '_')}.png">
-            <button class="download-btn">Download Logo</button>
-          </a>
-        `;
+        img.onload = function() {
+          // Display the logo with download button
+          preview.innerHTML = `
+            <div class="logo-container">
+              <img src="${apiUrl}" alt="Generated Logo" />
+            </div>
+            <a href="${apiUrl}" download="logo_${number}_${text.replace(/\s+/g, '_')}.png" class="download-btn">
+              Download Logo
+            </a>
+          `;
+          generateBtn.disabled = false;
+        };
+        
+        img.onerror = function() {
+          showError("Failed to load logo. The API might be down or the logo number doesn't exist.");
+          preview.innerHTML = "<p>Logo generation failed. Please try a different number.</p>";
+        };
+        
       } catch (error) {
-        showError("Failed to generate logo. Please try again later.");
-        console.error("Logo generation error:", error);
+        showError("An error occurred while generating the logo");
+        console.error("Error:", error);
         preview.innerHTML = "<p>Logo generation failed</p>";
-      } finally {
         generateBtn.disabled = false;
       }
     }
-    
-    function testImage(url) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = () => reject(new Error("Image failed to load"));
-        img.src = url;
-      });
-    }
-    
+
     function showError(message) {
       errorEl.textContent = message;
-      preview.innerHTML = "<p>Your generated logo will appear here</p>";
       generateBtn.disabled = false;
     }
   </script>
