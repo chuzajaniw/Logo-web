@@ -3,216 +3,262 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logo Generator</title>
+  <title>Advanced Logo Generator</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #111;
-      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
       min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
-    h1 {
-      color: #00f7ff;
-      text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
-      margin-bottom: 30px;
-    }
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      max-width: 400px;
-      gap: 10px;
-    }
-    input, button {
-      padding: 12px 15px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-    }
-    input {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1px solid #00f7ff;
-    }
-    button {
-      background: #00f7ff;
-      color: #111;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 10px 0;
-    }
-    button:hover {
-      background: #00c4cc;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 247, 255, 0.4);
-    }
-    #preview {
-      margin-top: 30px;
-      text-align: center;
+    .container {
       width: 100%;
       max-width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+    input, select, button {
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #logoContainer {
+      margin-top: 30px;
+      position: relative;
     }
     #logoImage {
       max-width: 100%;
-      border: 2px solid #00f7ff;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
-      margin-bottom: 15px;
-    }
-    #downloadBtn {
-      background: #4CAF50;
-      padding: 12px 25px;
-      border-radius: 5px;
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-      transition: background 0.3s;
-      display: inline-block;
-      margin-top: 10px;
-    }
-    #downloadBtn:hover {
-      background: #3e8e41;
-    }
-    .hidden {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       display: none;
     }
+    #downloadBtn {
+      display: none;
+      margin-top: 15px;
+      background-color: #2ecc71;
+    }
+    #downloadBtn:hover {
+      background-color: #27ae60;
+    }
     #loading {
-      margin: 20px;
-      color: #00f7ff;
-      font-size: 18px;
+      display: none;
+      margin: 20px 0;
+      color: #3498db;
+      font-weight: 600;
     }
     #error {
-      color: #ff5555;
+      color: #e74c3c;
+      font-weight: 600;
       margin-top: 10px;
-      font-weight: bold;
+      display: none;
     }
-    .logo-style {
-      margin: 10px;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .logo-style:hover {
-      border-color: #00f7ff;
-    }
-    .style-selector {
+    .preview-styles {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
       justify-content: center;
-      margin: 20px 0;
+    }
+    .style-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      background-color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .style-preview:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .style-preview.selected {
+      border-color: #3498db;
+      background-color: #d6eaf8;
     }
   </style>
 </head>
 <body>
-  <h1>🔥 Logo Generator 🔥</h1>
-  <div class="input-group">
-    <input type="text" id="logoText" placeholder="Enter Your Text" maxlength="20" />
-    <button onclick="generateLogo()">Generate Logo</button>
-  </div>
-
-  <div class="style-selector">
-    <div class="logo-style" onclick="selectStyle(1)">Style 1</div>
-    <div class="logo-style" onclick="selectStyle(2)">Style 2</div>
-    <div class="logo-style" onclick="selectStyle(3)">Style 3</div>
-    <div class="logo-style" onclick="selectStyle(4)">Style 4</div>
-    <div class="logo-style" onclick="selectStyle(5)">Style 5</div>
-  </div>
-
-  <div id="error" class="hidden"></div>
-  <div id="loading" class="hidden">Generating logo...</div>
-  
-  <div id="preview" class="hidden">
-    <img id="logoImage" alt="Generated Logo" />
-    <br/>
-    <a id="downloadBtn" download>Download Logo</a>
+  <div class="container">
+    <h1>✨ Logo Generator ✨</h1>
+    <form id="logoForm">
+      <div class="form-group">
+        <label for="name">Your Text:</label>
+        <input type="text" id="name" placeholder="Enter your company name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="code">Logo Style (1-135):</label>
+        <input type="number" id="code" min="1" max="135" placeholder="Enter style number" required>
+      </div>
+      
+      <div class="preview-styles">
+        <div class="style-preview" data-style="1">1</div>
+        <div class="style-preview" data-style="2">2</div>
+        <div class="style-preview" data-style="3">3</div>
+        <div class="style-preview" data-style="4">4</div>
+        <div class="style-preview" data-style="5">5</div>
+        <div class="style-preview" data-style="6">6</div>
+      </div>
+      
+      <button type="submit" id="generateBtn">Generate Logo</button>
+      <div id="loading">Generating your logo...</div>
+      <div id="error"></div>
+    </form>
+    
+    <div id="logoContainer">
+      <img id="logoImage" alt="Generated Logo">
+      <button id="downloadBtn">Download Logo</button>
+    </div>
   </div>
 
   <script>
-    let selectedStyle = 1;
-    
-    function selectStyle(styleNumber) {
-      selectedStyle = styleNumber;
-      // Update UI to show selected style
-      document.querySelectorAll('.logo-style').forEach(el => {
-        el.style.borderColor = '#444';
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('logoForm');
+      const nameInput = document.getElementById('name');
+      const codeInput = document.getElementById('code');
+      const generateBtn = document.getElementById('generateBtn');
+      const logoImage = document.getElementById('logoImage');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const stylePreviews = document.querySelectorAll('.style-preview');
+      
+      // Style preview selection
+      stylePreviews.forEach(preview => {
+        preview.addEventListener('click', function() {
+          stylePreviews.forEach(p => p.classList.remove('selected'));
+          this.classList.add('selected');
+          codeInput.value = this.getAttribute('data-style');
+        });
       });
-      event.target.style.borderColor = '#00f7ff';
-    }
-
-    function generateLogo() {
-      const text = document.getElementById("logoText").value.trim();
-      const errorElement = document.getElementById("error");
-      const loadingElement = document.getElementById("loading");
-      const previewElement = document.getElementById("preview");
-      const logoImage = document.getElementById("logoImage");
-      const downloadBtn = document.getElementById("downloadBtn");
-
-      // Reset UI
-      errorElement.classList.add("hidden");
-      previewElement.classList.add("hidden");
-      loadingElement.classList.remove("hidden");
-
-      // Validation
-      if (!text) {
-        showError("Please enter some text for your logo.");
-        return;
-      }
-
-      // Using a reliable placeholder service for demonstration
-      // In a real app, you would use your own backend or a paid API
-      const placeholderText = encodeURIComponent(text);
-      let apiUrl;
       
-      switch(selectedStyle) {
-        case 1:
-          apiUrl = `https://dummyimage.com/600x400/00f7ff/111&text=${placeholderText}`;
-          break;
-        case 2:
-          apiUrl = `https://dummyimage.com/600x400/ff00ff/111&text=${placeholderText}`;
-          break;
-        case 3:
-          apiUrl = `https://dummyimage.com/600x400/00ff00/111&text=${placeholderText}`;
-          break;
-        case 4:
-          apiUrl = `https://dummyimage.com/600x400/ffff00/111&text=${placeholderText}`;
-          break;
-        case 5:
-          apiUrl = `https://dummyimage.com/600x400/ff5500/111&text=${placeholderText}`;
-          break;
-        default:
-          apiUrl = `https://dummyimage.com/600x400/00f7ff/111&text=${placeholderText}`;
-      }
-      
-      // Create test image
-      const testImage = new Image();
-      testImage.onload = function() {
-        // Success - display image and setup download
-        logoImage.src = apiUrl;
-        downloadBtn.href = apiUrl;
-        downloadBtn.download = `logo_${selectedStyle}_${text.replace(/\s+/g, '_')}.png`;
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        loadingElement.classList.add("hidden");
-        previewElement.classList.remove("hidden");
-      };
+        const name = nameInput.value.trim();
+        const code = codeInput.value.trim();
+        
+        // Validate inputs
+        if (!name || !code) {
+          showError('Please enter both text and select a style');
+          return;
+        }
+        
+        if (code < 1 || code > 135) {
+          showError('Please select a style between 1 and 135');
+          return;
+        }
+        
+        // UI updates
+        generateBtn.disabled = true;
+        loading.style.display = 'block';
+        error.style.display = 'none';
+        logoImage.style.display = 'none';
+        downloadBtn.style.display = 'none';
+        
+        try {
+          const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${code}?text=${encodeURIComponent(name)}`;
+          
+          // First check if the image exists
+          const img = new Image();
+          
+          img.onload = function() {
+            // Display the image
+            logoImage.src = apiUrl;
+            logoImage.style.display = 'block';
+            
+            // Set up download button
+            downloadBtn.onclick = function() {
+              const link = document.createElement('a');
+              link.href = apiUrl;
+              link.download = `logo-${code}-${name.replace(/\s+/g, '-')}.png`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            };
+            
+            downloadBtn.style.display = 'inline-block';
+            loading.style.display = 'none';
+            generateBtn.disabled = false;
+          };
+          
+          img.onerror = function() {
+            showError('Failed to generate logo. The server might be unavailable or the style number is invalid.');
+            generateBtn.disabled = false;
+            loading.style.display = 'none';
+          };
+          
+          img.src = apiUrl;
+          
+        } catch (err) {
+          showError('An error occurred. Please try again later.');
+          console.error(err);
+          generateBtn.disabled = false;
+          loading.style.display = 'none';
+        }
+      });
       
-      testImage.onerror = function() {
-        showError("Failed to generate logo. Please check your internet connection.");
-      };
-      
-      testImage.src = apiUrl;
-
       function showError(message) {
-        loadingElement.classList.add("hidden");
-        errorElement.textContent = message;
-        errorElement.classList.remove("hidden");
+        error.textContent = message;
+        error.style.display = 'block';
       }
-    }
+    });
   </script>
 </body>
 </html>
