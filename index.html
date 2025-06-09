@@ -1,66 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Logo Generator</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #f0f0f0;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: white;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, select, button {
+    h1 {
+      color: #00f7ff;
+    }
+    input, button {
       padding: 10px;
+      margin: 10px;
+      font-size: 16px;
       border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+    }
+    #preview {
+      margin-top: 20px;
     }
     img {
-      margin-top: 20px;
       max-width: 100%;
+      border: 2px solid #00f7ff;
       border-radius: 10px;
+      box-shadow: 0 0 20px #00f7ff;
     }
   </style>
 </head>
 <body>
-  <form id="logoForm">
-    <label>Enter Your Name:
-      <input type="text" id="name" required />
-    </label>
-    <label>Select Logo Style (1-135):
-      <input type="number" id="code" min="1" max="135" required />
-    </label>
-    <button type="submit">Generate Logo</button>
-  </form>
-  <img id="logoImage" style="display:none" />
+  <h1>🔥 Logo Generator 🔥</h1>
+  <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
+  <input type="text" id="logoText" placeholder="Enter Your Name" />
+  <button onclick="generateLogo()">Generate Logo</button>
+
+  <div id="preview"></div>
 
   <script>
-    document.getElementById('logoForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+    function generateLogo() {
+      const number = document.getElementById("logoNumber").value;
+      const text = document.getElementById("logoText").value.trim();
 
-      const name = document.getElementById('name').value.trim();
-      const code = document.getElementById('code').value.trim();
+      if (!number || !text) {
+        alert("Please enter both logo number and name.");
+        return;
+      }
 
-      const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${code}?text=${encodeURIComponent(name)}`;
-
-      const img = document.getElementById('logoImage');
-      img.src = apiUrl;
-      img.style.display = 'block';
-    });
+      const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
+      const imgTag = `<img src="${apiUrl}" alt="Generated Logo" /><br/><a href="${apiUrl}" download="logo_${number}.png"><button>Download</button></a>`;
+      document.getElementById("preview").innerHTML = imgTag;
+    }
   </script>
 </body>
 </html>
