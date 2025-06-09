@@ -6,38 +6,25 @@
   <title>Logo Generator</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #111, #222);
+      font-family: sans-serif;
+      background: #111;
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
       padding: 20px;
-      margin: 0;
     }
     h1 {
       color: #00f7ff;
-      text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
-      margin-bottom: 30px;
-    }
-    .input-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 500px;
     }
     input, button {
-      padding: 12px 15px;
+      padding: 10px;
+      margin: 10px;
       font-size: 16px;
       border-radius: 5px;
-      border: none;
-      flex: 1 1 200px;
     }
     input {
-      background: rgba(255,255,255,0.1);
+      background: #222;
       color: white;
       border: 1px solid #00f7ff;
     }
@@ -45,117 +32,102 @@
       background: #00f7ff;
       color: #111;
       font-weight: bold;
+      border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
     button:hover {
       background: #00c4cc;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 247, 255, 0.4);
     }
     #preview {
-      margin-top: 30px;
+      margin-top: 20px;
       text-align: center;
-      width: 100%;
-      max-width: 500px;
     }
-    img {
+    #logoImage {
       max-width: 100%;
+      max-height: 400px;
       border: 2px solid #00f7ff;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
+      box-shadow: 0 0 20px #00f7ff;
       margin-bottom: 15px;
     }
-    .download-btn {
-      background: #4CAF50;
+    #downloadBtn {
       padding: 10px 20px;
-      border-radius: 5px;
-      text-decoration: none;
+      background: #4CAF50;
       color: white;
+      border: none;
+      border-radius: 5px;
       font-weight: bold;
-      transition: background 0.3s;
-    }
-    .download-btn:hover {
-      background: #3e8e41;
-    }
-    .error {
-      color: #ff5555;
+      text-decoration: none;
+      display: inline-block;
       margin-top: 10px;
     }
-    @media (max-width: 500px) {
-      h1 {
-        font-size: 24px;
-      }
-      input, button {
-        padding: 10px 12px;
-      }
+    #downloadBtn:hover {
+      background: #3e8e41;
+    }
+    .hidden {
+      display: none;
+    }
+    #loading {
+      margin: 20px;
+      color: #00f7ff;
     }
   </style>
 </head>
 <body>
   <h1>🔥 Logo Generator 🔥</h1>
-  <div class="input-group">
-    <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
-    <input type="text" id="logoText" placeholder="Enter Your Name" maxlength="20" />
-    <button onclick="generateLogo()">Generate Logo</button>
+  <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
+  <input type="text" id="logoText" placeholder="Enter Your Name" />
+  <button onclick="generateLogo()">Generate Logo</button>
+
+  <div id="loading" class="hidden">Generating logo...</div>
+  
+  <div id="preview" class="hidden">
+    <img id="logoImage" />
+    <br/>
+    <a id="downloadBtn" download>Download Logo</a>
   </div>
-  <div id="error" class="error"></div>
-  <div id="preview"></div>
 
   <script>
     function generateLogo() {
       const number = document.getElementById("logoNumber").value;
       const text = document.getElementById("logoText").value.trim();
-      const errorElement = document.getElementById("error");
-      const previewElement = document.getElementById("preview");
+      const preview = document.getElementById("preview");
+      const loading = document.getElementById("loading");
+      const logoImage = document.getElementById("logoImage");
+      const downloadBtn = document.getElementById("downloadBtn");
 
-      // Clear previous error and preview
-      errorElement.textContent = '';
-      previewElement.innerHTML = '';
-
-      // Validation
       if (!number || !text) {
-        errorElement.textContent = "Please enter both logo number and name.";
+        alert("Please enter both logo number and name.");
         return;
       }
+
+      // Show loading, hide preview
+      loading.classList.remove("hidden");
+      preview.classList.add("hidden");
+
+      const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
       
-      if (number < 1 || number > 35) {
-        errorElement.textContent = "Please enter a number between 1 and 35.";
-        return;
-      }
-
-      if (text.length > 20) {
-        errorElement.textContent = "Name must be 20 characters or less.";
-        return;
-      }
-
-      // Show loading state
-      previewElement.innerHTML = '<p>Generating logo...</p>';
-
-      const apiUrl = `https://cors-anywhere.herokuapp.com/http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
-      
-      // Create image element
+      // Create image to test if it loads
       const img = new Image();
-      img.src = apiUrl;
-      img.alt = "Generated Logo";
-      
       img.onload = function() {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = apiUrl;
-        downloadLink.download = `logo_${number}_${text.replace(/\s+/g, '_')}.png`;
-        downloadLink.className = 'download-btn';
-        downloadLink.textContent = 'Download Logo';
+        // Set the image source
+        logoImage.src = apiUrl;
         
-        previewElement.innerHTML = '';
-        previewElement.appendChild(img);
-        previewElement.appendChild(document.createElement('br'));
-        previewElement.appendChild(downloadLink);
+        // Set up download button
+        downloadBtn.href = apiUrl;
+        downloadBtn.download = `logo_${number}_${text.replace(/\s+/g, '_')}.png`;
+        
+        // Show preview, hide loading
+        preview.classList.remove("hidden");
+        loading.classList.add("hidden");
       };
       
       img.onerror = function() {
-        previewElement.innerHTML = '';
-        errorElement.textContent = "Failed to generate logo. Please try again later.";
+        loading.classList.add("hidden");
+        alert("Failed to generate logo. Please try again.");
       };
+      
+      img.src = apiUrl;
     }
   </script>
 </body>
