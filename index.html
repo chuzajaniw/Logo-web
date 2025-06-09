@@ -6,55 +6,175 @@
   <title>Logo Generator</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #111;
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      min-height: 100vh;
     }
     h1 {
       color: #00f7ff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
     }
     input, button {
-      padding: 10px;
-      margin: 10px;
+      padding: 12px;
+      margin: 10px 0;
       font-size: 16px;
       border-radius: 5px;
+      border: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input {
+      background: #222;
+      color: white;
+      border: 1px solid #333;
+    }
+    button {
+      background: #00f7ff;
+      color: #111;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #00d0d9;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
     }
     #preview {
-      margin-top: 20px;
+      margin-top: 30px;
+      text-align: center;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     img {
       max-width: 100%;
+      max-height: 300px;
       border: 2px solid #00f7ff;
       border-radius: 10px;
-      box-shadow: 0 0 20px #00f7ff;
+      box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+      margin-bottom: 15px;
+    }
+    .download-btn {
+      background: #4CAF50;
+      width: auto;
+      padding: 10px 20px;
+    }
+    .download-btn:hover {
+      background: #3e8e41;
+    }
+    .error {
+      color: #ff5555;
+      margin-top: 10px;
+    }
+    .loading {
+      border: 4px solid rgba(0, 247, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #00f7ff;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <h1>🔥 Logo Generator 🔥</h1>
-  <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
-  <input type="text" id="logoText" placeholder="Enter Your Name" />
-  <button onclick="generateLogo()">Generate Logo</button>
-
-  <div id="preview"></div>
+  <div class="container">
+    <h1>🔥 Logo Generator 🔥</h1>
+    <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
+    <input type="text" id="logoText" placeholder="Enter Your Text" maxlength="20" />
+    <button id="generateBtn" onclick="generateLogo()">Generate Logo</button>
+    <div id="error" class="error"></div>
+    
+    <div id="preview">
+      <p>Your generated logo will appear here</p>
+    </div>
+  </div>
 
   <script>
-    function generateLogo() {
+    const generateBtn = document.getElementById("generateBtn");
+    const preview = document.getElementById("preview");
+    const errorEl = document.getElementById("error");
+    
+    async function generateLogo() {
       const number = document.getElementById("logoNumber").value;
       const text = document.getElementById("logoText").value.trim();
-
-      if (!number || !text) {
-        alert("Please enter both logo number and name.");
+      
+      // Clear previous errors and results
+      errorEl.textContent = "";
+      preview.innerHTML = '<div class="loading"></div>';
+      generateBtn.disabled = true;
+      
+      // Validate inputs
+      if (!number || number < 1 || number > 35) {
+        showError("Please enter a valid logo number between 1-35");
         return;
       }
-
-      const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
-      const imgTag = `<img src="${apiUrl}" alt="Generated Logo" /><br/><a href="${apiUrl}" download="logo_${number}.png"><button>Download</button></a>`;
-      document.getElementById("preview").innerHTML = imgTag;
+      
+      if (!text) {
+        showError("Please enter some text for your logo");
+        return;
+      }
+      
+      if (text.length > 20) {
+        showError("Text must be 20 characters or less");
+        return;
+      }
+      
+      try {
+        const apiUrl = `https://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
+        
+        // Test if the image loads successfully
+        await testImage(apiUrl);
+        
+        // Display the image
+        preview.innerHTML = `
+          <img src="${apiUrl}" alt="Generated Logo" />
+          <a href="${apiUrl}" download="logo_${number}_${text.replace(/\s+/g, '_')}.png">
+            <button class="download-btn">Download Logo</button>
+          </a>
+        `;
+      } catch (error) {
+        showError("Failed to generate logo. Please try again later.");
+        console.error("Logo generation error:", error);
+        preview.innerHTML = "<p>Logo generation failed</p>";
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+    
+    function testImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => reject(new Error("Image failed to load"));
+        img.src = url;
+      });
+    }
+    
+    function showError(message) {
+      errorEl.textContent = message;
+      preview.innerHTML = "<p>Your generated logo will appear here</p>";
+      generateBtn.disabled = false;
     }
   </script>
 </body>
