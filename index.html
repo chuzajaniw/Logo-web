@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logo Generator</title>
   <style>
     body {
@@ -91,14 +91,37 @@
       margin-top: 10px;
       font-weight: bold;
     }
+    .logo-style {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .logo-style:hover {
+      border-color: #00f7ff;
+    }
+    .style-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
   <h1>🔥 Logo Generator 🔥</h1>
   <div class="input-group">
-    <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
-    <input type="text" id="logoText" placeholder="Enter Your Name" maxlength="20" />
+    <input type="text" id="logoText" placeholder="Enter Your Text" maxlength="20" />
     <button onclick="generateLogo()">Generate Logo</button>
+  </div>
+
+  <div class="style-selector">
+    <div class="logo-style" onclick="selectStyle(1)">Style 1</div>
+    <div class="logo-style" onclick="selectStyle(2)">Style 2</div>
+    <div class="logo-style" onclick="selectStyle(3)">Style 3</div>
+    <div class="logo-style" onclick="selectStyle(4)">Style 4</div>
+    <div class="logo-style" onclick="selectStyle(5)">Style 5</div>
   </div>
 
   <div id="error" class="hidden"></div>
@@ -111,8 +134,18 @@
   </div>
 
   <script>
+    let selectedStyle = 1;
+    
+    function selectStyle(styleNumber) {
+      selectedStyle = styleNumber;
+      // Update UI to show selected style
+      document.querySelectorAll('.logo-style').forEach(el => {
+        el.style.borderColor = '#444';
+      });
+      event.target.style.borderColor = '#00f7ff';
+    }
+
     function generateLogo() {
-      const number = document.getElementById("logoNumber").value;
       const text = document.getElementById("logoText").value.trim();
       const errorElement = document.getElementById("error");
       const loadingElement = document.getElementById("loading");
@@ -126,17 +159,35 @@
       loadingElement.classList.remove("hidden");
 
       // Validation
-      if (!number || !text) {
-        showError("Please enter both logo number and name.");
-        return;
-      }
-      
-      if (number < 1 || number > 35) {
-        showError("Please enter a number between 1 and 35.");
+      if (!text) {
+        showError("Please enter some text for your logo.");
         return;
       }
 
-      const apiUrl = `https://corsproxy.io/?${encodeURIComponent(`http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`)}`;
+      // Using a reliable placeholder service for demonstration
+      // In a real app, you would use your own backend or a paid API
+      const placeholderText = encodeURIComponent(text);
+      let apiUrl;
+      
+      switch(selectedStyle) {
+        case 1:
+          apiUrl = `https://dummyimage.com/600x400/00f7ff/111&text=${placeholderText}`;
+          break;
+        case 2:
+          apiUrl = `https://dummyimage.com/600x400/ff00ff/111&text=${placeholderText}`;
+          break;
+        case 3:
+          apiUrl = `https://dummyimage.com/600x400/00ff00/111&text=${placeholderText}`;
+          break;
+        case 4:
+          apiUrl = `https://dummyimage.com/600x400/ffff00/111&text=${placeholderText}`;
+          break;
+        case 5:
+          apiUrl = `https://dummyimage.com/600x400/ff5500/111&text=${placeholderText}`;
+          break;
+        default:
+          apiUrl = `https://dummyimage.com/600x400/00f7ff/111&text=${placeholderText}`;
+      }
       
       // Create test image
       const testImage = new Image();
@@ -144,14 +195,14 @@
         // Success - display image and setup download
         logoImage.src = apiUrl;
         downloadBtn.href = apiUrl;
-        downloadBtn.download = `logo_${number}_${text.replace(/\s+/g, '_')}.png`;
+        downloadBtn.download = `logo_${selectedStyle}_${text.replace(/\s+/g, '_')}.png`;
         
         loadingElement.classList.add("hidden");
         previewElement.classList.remove("hidden");
       };
       
       testImage.onerror = function() {
-        showError("Failed to generate logo. The server might be unavailable. Please try again later.");
+        showError("Failed to generate logo. Please check your internet connection.");
       };
       
       testImage.src = apiUrl;
