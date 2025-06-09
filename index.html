@@ -46,7 +46,7 @@
     </label>
     <button type="submit">Generate Logo</button>
   </form>
-  <img id="logoImage" style="" />
+  <img id="logoImage" style="display:none" />
 
   <script>
     document.getElementById('logoForm').addEventListener('submit', async function(e) {
@@ -59,7 +59,7 @@
 
       const img = document.getElementById('logoImage');
       img.src = apiUrl;
-      img.style.display = '';
+      img.style.display = 'block';
     });
   </script>
 </body>
