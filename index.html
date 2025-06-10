@@ -3,66 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🔥 Logo Generator 🔥</title>
+  <title>Logo Generator</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0c0c0c;
+      font-family: sans-serif;
+      background: #111;
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px;
+      padding: 20px;
     }
     h1 {
       color: #00f7ff;
-      margin-bottom: 20px;
     }
     input, button {
-      padding: 12px;
+      padding: 10px;
       margin: 10px;
       font-size: 16px;
-      border: none;
-      border-radius: 8px;
-    }
-    input {
-      width: 250px;
-    }
-    button {
-      background-color: #00f7ff;
-      color: black;
-      cursor: pointer;
-      font-weight: bold;
+      border-radius: 5px;
     }
     #preview {
-      margin-top: 30px;
-      text-align: center;
+      margin-top: 20px;
     }
-    #preview img {
-      max-width: 90%;
-      margin-bottom: 15px;
-      border-radius: 12px;
-      border: 3px solid #00f7ff;
+    img {
+      max-width: 100%;
+      border: 2px solid #00f7ff;
+      border-radius: 10px;
       box-shadow: 0 0 20px #00f7ff;
-    }
-    #downloadBtn {
-      display: none;
-      background-color: #1fff00;
     }
   </style>
 </head>
 <body>
-  <h1>🔥 Logo Generator (1-35) 🔥</h1>
-  <input type="number" id="logoNumber" placeholder="Enter Logo Number" min="1" max="35" />
+  <h1>🔥 Logo Generator 🔥</h1>
+  <input type="number" id="logoNumber" placeholder="Enter Logo Number (1-35)" min="1" max="35" />
   <input type="text" id="logoText" placeholder="Enter Your Name" />
   <button onclick="generateLogo()">Generate Logo</button>
 
-  <div id="preview">
-    <img id="logoImage" src="" alt="" style="display:none;" />
-    <a id="downloadBtn" href="" download="logo.png">
-      <button>Download</button>
-    </a>
-  </div>
+  <div id="preview"></div>
 
   <script>
     function generateLogo() {
@@ -74,24 +52,9 @@
         return;
       }
 
-      const imageUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
-      const logoImage = document.getElementById("logoImage");
-      const downloadBtn = document.getElementById("downloadBtn");
-
-      logoImage.style.display = "none";
-      downloadBtn.style.display = "none";
-
-      logoImage.onload = () => {
-        logoImage.style.display = "block";
-        downloadBtn.href = imageUrl;
-        downloadBtn.style.display = "inline-block";
-      };
-
-      logoImage.onerror = () => {
-        alert("Failed to load image. Try another number.");
-      };
-
-      logoImage.src = imageUrl;
+      const apiUrl = `http://fi3.bot-hosting.net:21943/api/ephoto/${number}?text=${encodeURIComponent(text)}`;
+      const imgTag = `<img src="${apiUrl}" alt="Generated Logo" /><br/><a href="${apiUrl}" download="logo_${number}.png"><button>Download</button></a>`;
+      document.getElementById("preview").innerHTML = imgTag;
     }
   </script>
 </body>
